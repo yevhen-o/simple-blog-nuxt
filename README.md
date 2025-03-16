@@ -1,75 +1,49 @@
-# Nuxt Minimal Starter
+# My Blog Nuxt
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This is a Nuxt 3 project for a simple blog application.
+
+**Preview:** [https://simple-blog-nuxt.vercel.app/](https://simple-blog-nuxt.vercel.app/)
+
+## Features
+
+- Server-Side Rendering (SSR)
+- Dynamic Routing
+- Markdown Content Support
+- Form Validation with `vee-validate` and `zod`
+- Firebase Authentication
+- Reusable Components
+- Type Safety with TypeScript
+- `pnpm` as Package Manager
 
 ## Setup
 
-Make sure to install dependencies:
+1.  **Install Dependencies:**
 
-```bash
-# npm
-npm install
+    ```bash
+    pnpm install
+    ```
 
-# pnpm
-pnpm install
+2.  **Environment Variables:**
 
-# yarn
-yarn install
+    - Create a `.env` file in the root of your project.
+    - Add your Firebase configuration variables to the `.env` file. You can use the `.env` file you provided as a template:
 
-# bun
-bun install
-```
+      ```properties
+      VITE_FIREBASE_API_KEY=YOUR_FIREBASE_API_KEY
+      VITE_FIREBASE_AUTH_DOMAIN=YOUR_FIREBASE_AUTH_DOMAIN
+      VITE_FIREBASE_DATABASE_URL=YOUR_FIREBASE_DATABASE_URL
+      VITE_FIREBASE_PROJECT_ID=YOUR_FIREBASE_PROJECT_ID
+      VITE_FIREBASE_STORAGE_BUCKET=YOUR_FIREBASE_STORAGE_BUCKET
+      VITE_FIREBASE_MESSAGING_SENDER_ID=YOUR_FIREBASE_MESSAGING_SENDER_ID
+      VITE_FIREBASE_APP_ID=YOUR_FIREBASE_APP_ID
+      ```
 
-## Development Server
+    - Replace the placeholder values with your actual Firebase credentials.
+
+## Development
 
 Start the development server on `http://localhost:3000`:
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
 pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
