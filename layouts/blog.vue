@@ -55,7 +55,7 @@ $color-gray-0: rgba(255, 255, 255, 1);
   --border-radius-lg: 1rem;
 
   --header-height: 48px;
-  --footer-height: 90px;
+  --footer-height: 108px;
 }
 
 body {
