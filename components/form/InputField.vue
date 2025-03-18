@@ -65,7 +65,7 @@ const props = defineProps({
   },
   isTouched: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   modelValue: {
     type: [String, Number],

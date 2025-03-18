@@ -5,21 +5,50 @@
       label="Title"
       name="title"
       :error="errors.title"
+      @blur="handleBlur"
+      :isTouched="touchedFields.title"
     />
-    <InputField v-model="slug" label="Slug" name="slug" :error="errors.slug" />
+    <InputField
+      v-model="slug"
+      label="Slug"
+      name="slug"
+      :error="errors.slug"
+      @blur="handleBlur"
+      :isTouched="touchedFields.slug"
+    />
+    <InvalidText v-if="slugAlreadyInUse">
+      Slug already in use
+      <Button
+        v-if="slugAlreadyInUse && !hasCustomSlug"
+        @click="setHasCustomSlug"
+        >Set custom slug</Button
+      >
+    </InvalidText>
     <InputField
       v-model="content"
       label="Content"
       name="content"
       rows="5"
       :error="errors.content"
+      @blur="handleBlur"
+      :isTouched="touchedFields.content"
     />
-    <InputField v-model="tags" label="Tags" name="tags" :error="errors.tags" />
+    <InputField
+      v-model="tags"
+      label="Tags"
+      name="tags"
+      :error="errors.tags"
+      @blur="handleBlur"
+      :isTouched="touchedFields.tags"
+    />
     <InputField
       v-model="author"
+      disabled
       label="Author"
       name="author"
       :error="errors.author"
+      @blur="handleBlur"
+      :isTouched="touchedFields.author"
     />
 
     <Button type="submit">Submit</Button>
@@ -28,6 +57,7 @@
 
 <script setup lang="ts">
 import InputField from "~/components/form/InputField.vue";
+import InvalidText from "~/components/form/InvalidText.vue";
 import Button from "~/components/Button.vue";
 import { useField, useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
@@ -40,9 +70,14 @@ import {
 } from "~/types/PostInterface";
 import { useAuth } from "~/hooks/useAuth";
 import { useRouter } from "vue-router";
+import { nextTick } from "vue";
 
 const router = useRouter();
 const { user } = useAuth();
+
+const touchedFields = ref<{ [key: string]: boolean }>({ slug: true });
+const hasCustomSlug = ref(false);
+const slugAlreadyInUse = ref(false);
 
 const schema = PostValidationSchema.omit({
   tags: true,
@@ -56,12 +91,23 @@ let initialValues = {
   title: "",
   id: "",
   content: "",
-  author: maskEmail(user?.email || ""),
+  author: "",
   tags: "",
+  slug: "",
 };
 
+watch(
+  () => user.value,
+  (newUser) => {
+    if (newUser?.email) {
+      setFieldValue("author", maskEmail(newUser.email));
+    }
+  },
+  { immediate: true } // Run immediately to catch existing user if present
+);
+
 const validationSchema = toTypedSchema(schema);
-const { handleSubmit, errors } = useForm({
+const { handleSubmit, errors, setErrors, setFieldValue } = useForm({
   validationSchema,
   initialValues,
 });
@@ -84,25 +130,23 @@ const onSubmit = handleSubmit(async (values) => {
     if (error instanceof Error) {
       alert(error.message);
     }
-  } finally {
-    isSubmitting = false;
   }
 });
 
 const validateSlug = async () => {
-  const isInUse = await isSlugInUse(slug);
-  if (isInUse) {
-    setErrors("slug", "This slug already in use");
-    touchedFields = { ...touchedFields, slug: true };
-  }
-  slugIsUsed = isInUse;
+  const isInUse = await isSlugInUse(slug.value);
+  slugAlreadyInUse.value = isInUse;
+};
+
+const setHasCustomSlug = () => {
+  hasCustomSlug.value = true;
 };
 
 const createSlug = async () => {
-  if (hasCustomSlug || !title) return;
-  setData("slug", titleToSlug(title));
-  await tick();
-  validateSlug();
+  if (hasCustomSlug.value || !title.value) return;
+  setFieldValue("slug", titleToSlug(title.value));
+  await nextTick();
+  await validateSlug();
 };
 
 const handleBlur = (e: FocusEvent) => {
@@ -114,17 +158,21 @@ const handleBlur = (e: FocusEvent) => {
   )
     return;
 
-  touchedFields = {
-    ...touchedFields,
-    [e.target.name]: true,
-  };
+  const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+  touchedFields.value[target.name] = true;
+
+  if (target.name === "title") {
+    createSlug();
+  }
+  if (target.name === "slug") {
+    validateSlug();
+  }
 };
 
 const setAllFieldsTouched = () => {
-  touchedFields = Object.keys(initialValues).reduce(
-    (acc, key) => ({ ...acc, [key]: true }),
-    {}
-  );
+  Object.keys(initialValues).forEach((key) => {
+    touchedFields.value[key] = true;
+  });
 };
 </script>
 
